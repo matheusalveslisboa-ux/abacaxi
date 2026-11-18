@@ -1,0 +1,44 @@
+/* ===== Paleta (mude aqui) ===== */
+:root{
+  --preto:#120504;
+  --marrom:#3b2014;
+  --brasa:#ff7a1a;
+  --fogo:#e8321a;
+  --cinza-osso:#f3dcc0;
+  --fonte:Impact,"Arial Black","Haettenschweiler",sans-serif;
+  --texto:"Trebuchet MS","Segoe UI",sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:radial-gradient(circle at 50% 120%,#5a1306,var(--preto) 70%);color:var(--cinza-osso);font-family:var(--texto)}
+body{display:flex;align-items:center;justify-content:center}
+
+#wrap{position:relative;width:min(100vw,calc(100vh*16/9));aspect-ratio:16/9;box-shadow:0 0 60px rgba(255,90,20,.35);border:4px solid var(--marrom);border-radius:6px;overflow:hidden;background:#000}
+canvas{width:100%;height:100%;display:block;image-rendering:auto}
+
+/* HUD */
+#hud{position:absolute;top:10px;left:12px;right:12px;display:flex;gap:18px;font-family:var(--fonte);font-size:clamp(14px,2.4vw,24px);letter-spacing:1px;text-shadow:2px 2px 0 #000;pointer-events:none}
+#hud span{background:rgba(18,5,4,.7);border:2px solid var(--brasa);border-radius:6px;padding:2px 12px}
+#hud #score{margin-left:auto;color:#ffd24a}
+#hud #souls{color:#9fe8ff}
+
+/* Aviso rápido */
+#toast{position:absolute;top:14%;left:50%;transform:translateX(-50%);max-width:80%;text-align:center;background:var(--preto);border:2px solid var(--brasa);color:var(--cinza-osso);padding:8px 18px;border-radius:8px;font-size:clamp(12px,1.8vw,18px);opacity:0;transition:opacity .25s;pointer-events:none}
+#toast.show{opacity:1}
+
+/* Telas por cima do jogo */
+.overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:4%;
+  background:radial-gradient(circle at 50% 100%,rgba(232,50,26,.55),rgba(18,5,4,.92) 65%)}
+.hidden{display:none!important}
+h1,h2{font-family:var(--fonte);margin:0;font-weight:400;color:var(--brasa);text-shadow:3px 3px 0 #000,0 0 22px rgba(255,90,20,.7);line-height:1}
+h1{font-size:clamp(34px,8vw,84px);transform:rotate(-2deg)}
+h2{font-size:clamp(30px,6vw,64px)}
+.sub{max-width:34em;margin:0;font-size:clamp(13px,1.9vw,19px)}
+.keys{font-size:clamp(11px,1.5vw,15px);opacity:.85;margin:6px 0 0}
+.keys b{background:var(--marrom);border:1px solid var(--brasa);border-radius:4px;padding:0 6px}
+.final{font-family:var(--fonte);font-size:clamp(18px,3vw,30px);color:#ffd24a;margin:0}
+
+button{font-family:var(--fonte);font-size:clamp(16px,2.6vw,26px);letter-spacing:1px;cursor:pointer;color:var(--preto);background:linear-gradient(#ffb23a,var(--brasa));border:3px solid var(--preto);border-radius:8px;padding:8px 26px;box-shadow:0 5px 0 #7a2a06;transition:transform .08s,box-shadow .08s}
+button:hover{transform:translateY(-2px)}
+button:active{transform:translateY(4px);box-shadow:0 1px 0 #7a2a06}
+button:focus-visible{outline:3px solid #fff;outline-offset:3px}
+button.alt{background:var(--marrom);color:var(--cinza-osso);border-color:var(--brasa);box-shadow:0 5px 0 #000}
