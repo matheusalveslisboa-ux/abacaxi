@@ -3,45 +3,46 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Diabrete no Inferno Eterno</title>
+<title>O General no Inferno</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div id="wrap">
   <canvas id="game" width="960" height="540"></canvas>
 
-  <!-- HUD: vidas, pontos e almas -->
-  <div id="hud" class="hidden">
-    <span id="lives"></span>
-    <span id="score"></span>
-    <span id="souls"></span>
+  <div id="hud">
+    <span>PONTOS <b id="score">00000</b></span>
+    <span>ALMAS <b id="coins">0</b></span>
+    <span>VIDAS <b id="lives">💀💀💀</b></span>
+    <span id="cycleBox">CICLO <b id="cycle">-</b></span>
   </div>
-  <div id="toast"></div>
+  <div id="dialog" class="hidden"><b id="who"></b><p id="said"></p></div>
 
-  <!-- Menu inicial -->
-  <div id="menu" class="overlay">
-    <h1>Diabrete<br>no Inferno Eterno</h1>
-    <p class="sub">Atravesse o Setor 666-B, colete almas e descubra o que acontece com quem foi muito, muito mau.</p>
-    <button id="btnStart">Começar a descida</button>
-    <p class="keys">Mover: <b>A D</b> ou <b>← →</b> &nbsp;·&nbsp; Pular: <b>Espaço</b> (ou W / ↑) &nbsp;·&nbsp; Pausa: <b>P</b> &nbsp;·&nbsp; Reiniciar: <b>R</b><br>Pule na cabeça dos inimigos para esmagá-los.</p>
-  </div>
+  <section id="menu" class="screen">
+    <h1>O GENERAL<br>NO INFERNO</h1>
+    <p class="sub">Um ditador (muito fictício) descobre que o inferno tem um<br>departamento especial só para ele: o <b>Bar do Abacaxi Eterno</b>.</p>
+    <button id="btnStart">INICIAR CONDENAÇÃO</button>
+    <p class="help">A / D ou ← → : andar &nbsp; Shift : correr &nbsp; Espaço / W / ↑ : pular &nbsp; P / Esc : pausa<br>Pise nos diabinhos. Fuja do fogo, dos espetos e... dos abacaxis.</p>
+  </section>
 
-  <!-- Pausa -->
-  <div id="pause" class="overlay hidden">
-    <h2>Pausa</h2>
-    <p class="sub">Até o inferno tem intervalo para o café (frio).</p>
-    <button id="btnResume">Continuar</button>
-    <button id="btnRestart1" class="alt">Reiniciar</button>
-  </div>
+  <section id="pause" class="screen hidden">
+    <h2>PAUSA</h2>
+    <p class="sub">Nem no inferno pedem tanta pausa.</p>
+    <button id="btnResume">CONTINUAR</button>
+    <button id="btnRestart">REINICIAR</button>
+  </section>
 
-  <!-- Vitória / Derrota -->
-  <div id="end" class="overlay hidden">
-    <h2 id="endTitle"></h2>
-    <p class="sub" id="endText"></p>
-    <p class="final" id="endScore"></p>
-    <button id="btnRestart2">Jogar de novo</button>
-    <button id="btnMenu" class="alt">Menu</button>
-  </div>
+  <section id="win" class="screen hidden">
+    <h2>VOCÊ ESCAPOU!</h2>
+    <p class="sub">…do andar de baixo. O andar de cima é o <b>Departamento de Filas</b>.<br>Pontuação final: <b id="winScore">0</b></p>
+    <button class="again">TENTAR DE NOVO</button>
+  </section>
+
+  <section id="lose" class="screen hidden">
+    <h2>CONDENAÇÃO RENOVADA</h2>
+    <p class="sub">“Acabaram as vidas? Que ótimo, assino outra eternidade!” — Capataz<br>Pontuação: <b id="loseScore">0</b></p>
+    <button class="again">REINICIAR PUNIÇÃO</button>
+  </section>
 </div>
 <script src="script.js"></script>
 </body>
