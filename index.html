@@ -3,7 +3,55 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<title>O General no Inferno</title><!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>O General no Inferno</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="wrap">
+  <canvas id="game" width="960" height="540"></canvas>
+
+  <div id="hud">
+    <span>PONTOS <b id="score">00000</b></span>
+    <span>ALMAS <b id="coins">0</b></span>
+    <span>VIDAS <b id="lives">💀💀💀</b></span>
+    <span id="cycleBox">CICLO <b id="cycle">-</b></span>
+  </div>
+  <div id="dialog" class="hidden"><b id="who"></b><p id="said"></p></div>
+
+  <section id="menu" class="screen">
+    <h1>O GENERAL<br>NO INFERNO</h1>
+    <p class="sub">Um ditador (muito fictício) descobre que o inferno tem um<br>departamento especial só para ele: o <b>Bar do Abacaxi Eterno</b>.</p>
+    <button id="btnStart">INICIAR CONDENAÇÃO</button>
+    <p class="help">A / D ou ← → : andar &nbsp; Shift : correr &nbsp; Espaço / W / ↑ : pular &nbsp; P / Esc : pausa<br>Pise nos diabinhos. Fuja do fogo, dos espetos e... dos abacaxis.</p>
+  </section>
+
+  <section id="pause" class="screen hidden">
+    <h2>PAUSA</h2>
+    <p class="sub">Nem no inferno pedem tanta pausa.</p>
+    <button id="btnResume">CONTINUAR</button>
+    <button id="btnRestart">REINICIAR</button>
+  </section>
+
+  <section id="win" class="screen hidden">
+    <h2>VOCÊ ESCAPOU!</h2>
+    <p class="sub">…do andar de baixo. O andar de cima é o <b>Departamento de Filas</b>.<br>Pontuação final: <b id="winScore">0</b></p>
+    <button class="again">TENTAR DE NOVO</button>
+  </section>
+
+  <section id="lose" class="screen hidden">
+    <h2>CONDENAÇÃO RENOVADA</h2>
+    <p class="sub">“Acabaram as vidas? Que ótimo, assino outra eternidade!” — Capataz<br>Pontuação: <b id="loseScore">0</b></p>
+    <button class="again">REINICIAR PUNIÇÃO</button>
+  </section>
+</div>
+<script src="script.js"></script>
+</body>
+</html>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
