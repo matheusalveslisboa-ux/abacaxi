@@ -1,1 +1,408 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Missão Abacaxi no Submundo</title>
+    <style>
+        /* Reseta as margens e define o fundo escuro da página */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #111;
+            color: white;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
 
+        /* Container que segura o canvas e a interface */
+        #game-container {
+            position: relative;
+            width: 800px;
+            height: 400px;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5); /* Brilho vermelho do submundo */
+        }
+
+        /* O fundo do jogo - Fundo do Inferno */
+        canvas {
+            background-color: #2b0000;
+            display: block;
+        }
+
+        /* Interface sobreposta ao Canvas */
+        #ui {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none; /* Deixa o clique passar para o canvas */
+        }
+
+        #status {
+            padding: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px black;
+        }
+
+        #mensagem {
+            text-align: center;
+            margin-top: 150px;
+            font-size: 40px;
+            text-shadow: 2px 2px 5px black;
+        }
+
+        /* Botão de reiniciar */
+        #btn-reiniciar {
+            display: none;
+            position: absolute;
+            top: 250px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 20px;
+            font-size: 20px;
+            cursor: pointer;
+            background-color: #8b0000;
+            color: white;
+            border: 2px solid white;
+            border-radius: 5px;
+            pointer-events: auto; /* Permite clicar no botão */
+        }
+
+        #btn-reiniciar:hover {
+            background-color: #ff0000;
+        }
+
+        /* Classe especial para a tela final de vitória */
+        .tela-escura {
+            background-color: black !important;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <!-- Onde o jogo será desenhado -->
+        <canvas id="gameCanvas" width="800" height="400"></canvas>
+        
+        <!-- Interface do usuário (Placar e Mensagens) -->
+        <div id="ui">
+            <div id="status">
+                Vidas: <span id="vidas">3</span> | 
+                Objetivo: <span id="objetivo">Pegue o Abacaxi!</span>
+            </div>
+            <h1 id="mensagem"></h1>
+            <button id="btn-reiniciar" onclick="reiniciarJogo()">Reiniciar</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+
+        // Variáveis de Estado do Jogo
+        let gameState = "START"; // START, PLAYING, GAMEOVER, WIN
+        let vidas = 3;
+        let temAbacaxi = false;
+
+        // Controles
+        const keys = { right: false, left: false, up: false };
+
+        // Personagem Principal
+        const player = {
+            x: 50, y: 300, width: 30, height: 40,
+            dx: 0, dy: 0, speed: 4, jumpPower: -10,
+            grounded: false
+        };
+
+        // Física do mundo
+        const gravity = 0.5;
+
+        // Plataformas (O chão e os degraus)
+        const platforms = [
+            { x: 0, y: 350, w: 800, h: 50 }, // Chão principal
+            { x: 200, y: 280, w: 100, h: 10 },
+            { x: 350, y: 220, w: 100, h: 10 },
+            { x: 500, y: 150, w: 100, h: 10 }
+        ];
+
+        // Obstáculos (Lava no chão)
+        const lava = [
+            { x: 250, y: 340, w: 150, h: 10 },
+            { x: 550, y: 340, w: 100, h: 10 }
+        ];
+
+        // Abacaxi (Coletável)
+        const abacaxi = { x: 535, y: 110, w: 20, h: 30, coletado: false };
+
+        // Personagem Secundário (Diabo)
+        const devil = { x: 700, y: 270, w: 40, h: 80 };
+
+        // Escutando o teclado
+        document.addEventListener("keydown", (e) => {
+            if (e.code === "ArrowRight" || e.code === "KeyD") keys.right = true;
+            if (e.code === "ArrowLeft" || e.code === "KeyA") keys.left = true;
+            if ((e.code === "ArrowUp" || e.code === "KeyW" || e.code === "Space") && player.grounded) {
+                player.dy = player.jumpPower;
+                player.grounded = false;
+            }
+        });
+
+        document.addEventListener("keyup", (e) => {
+            if (e.code === "ArrowRight" || e.code === "KeyD") keys.right = false;
+            if (e.code === "ArrowLeft" || e.code === "KeyA") keys.left = false;
+        });
+
+        // Funções de Desenho
+        function drawPlayer() {
+            // Corpo (Roupa de Empregada: Preto com avental branco)
+            ctx.fillStyle = "#111"; // Vestido
+            ctx.fillRect(player.x, player.y + 15, player.width, player.height - 15);
+            ctx.fillStyle = "white"; // Avental
+            ctx.fillRect(player.x + 5, player.y + 20, player.width - 10, 15);
+            
+            // Cabeça (Pele clara)
+            ctx.fillStyle = "#ffdbac";
+            ctx.fillRect(player.x + 5, player.y, 20, 15);
+            
+            // Cabelo (Loiro)
+            ctx.fillStyle = "#e5c158";
+            ctx.fillRect(player.x + 3, player.y - 5, 24, 8);
+            
+            // Orelhas de Gato
+            ctx.fillStyle = "#e5c158";
+            ctx.beginPath();
+            ctx.moveTo(player.x + 5, player.y - 5);
+            ctx.lineTo(player.x + 10, player.y - 15);
+            ctx.lineTo(player.x + 12, player.y - 5);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(player.x + 18, player.y - 5);
+            ctx.lineTo(player.x + 20, player.y - 15);
+            ctx.lineTo(player.x + 25, player.y - 5);
+            ctx.fill();
+            
+            // Bigode Charlie Chaplin
+            ctx.fillStyle = "black";
+            ctx.fillRect(player.x + 12, player.y + 7, 6, 3);
+            
+            // Rabo de Gato
+            ctx.fillStyle = "#e5c158";
+            ctx.fillRect(player.x - 8, player.y + 25, 8, 4);
+            
+            // Patinhas (Brancas)
+            ctx.fillStyle = "white";
+            ctx.fillRect(player.x - 2, player.y + 15, 6, 6);
+            ctx.fillRect(player.x + 26, player.y + 15, 6, 6);
+        }
+
+        function drawDevil() {
+            // Corpo Vermelho
+            ctx.fillStyle = "#c00";
+            ctx.fillRect(devil.x, devil.y, devil.w, devil.h);
+            
+            // Chifres
+            ctx.fillStyle = "#500";
+            ctx.beginPath();
+            ctx.moveTo(devil.x + 5, devil.y);
+            ctx.lineTo(devil.x + 10, devil.y - 15);
+            ctx.lineTo(devil.x + 15, devil.y);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(devil.x + 25, devil.y);
+            ctx.lineTo(devil.x + 30, devil.y - 15);
+            ctx.lineTo(devil.x + 35, devil.y);
+            ctx.fill();
+            
+            // Rabo Pontudo
+            ctx.beginPath();
+            ctx.moveTo(devil.x + devil.w, devil.y + devil.h - 10);
+            ctx.lineTo(devil.x + devil.w + 15, devil.y + devil.h - 15);
+            ctx.lineTo(devil.x + devil.w + 10, devil.y + devil.h - 5);
+            ctx.fill();
+            
+            // Tridente
+            ctx.fillStyle = "gray";
+            ctx.fillRect(devil.x - 10, devil.y - 10, 4, devil.h + 10);
+            ctx.fillRect(devil.x - 15, devil.y - 10, 14, 4);
+            ctx.fillRect(devil.x - 15, devil.y - 20, 3, 10);
+            ctx.fillRect(devil.x - 5, devil.y - 20, 3, 10);
+        }
+
+        function drawPineapple() {
+            if (abacaxi.coletado) return;
+            // Corpo do abacaxi
+            ctx.fillStyle = "#ffcc00";
+            ctx.beginPath();
+            ctx.ellipse(abacaxi.x + 10, abacaxi.y + 15, 10, 12, 0, 0, Math.PI * 2);
+            ctx.fill();
+            // Folhas verdes
+            ctx.fillStyle = "green";
+            ctx.beginPath();
+            ctx.moveTo(abacaxi.x + 10, abacaxi.y + 5);
+            ctx.lineTo(abacaxi.x + 5, abacaxi.y - 10);
+            ctx.lineTo(abacaxi.x + 15, abacaxi.y - 10);
+            ctx.fill();
+        }
+
+        // Lógica de Movimento e Colisão
+        function update() {
+            if (gameState !== "PLAYING") return;
+
+            // Movimentação horizontal
+            if (keys.right) player.x += player.speed;
+            if (keys.left) player.x -= player.speed;
+
+            // Física Vertical (Gravidade)
+            player.dy += gravity;
+            player.y += player.dy;
+            player.grounded = false;
+
+            // Colisão com Plataformas
+            for (let plat of platforms) {
+                if (player.y + player.height > plat.y && 
+                    player.y + player.height < plat.y + player.dy + 2 && 
+                    player.x + player.width > plat.x && 
+                    player.x < plat.x + plat.w) {
+                    
+                    player.grounded = true;
+                    player.dy = 0;
+                    player.y = plat.y - player.height;
+                }
+            }
+
+            // Colisão com as bordas da tela
+            if (player.x < 0) player.x = 0;
+            if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
+
+            // Colisão com a Lava (Obstáculo)
+            for (let l of lava) {
+                if (checkCollision(player, l)) {
+                    perderVida();
+                }
+            }
+
+            // Coletar o Abacaxi
+            if (!abacaxi.coletado && checkCollision(player, abacaxi)) {
+                abacaxi.coletado = true;
+                temAbacaxi = true;
+                document.getElementById("objetivo").innerText = "Entregue ao Diabo!";
+            }
+
+            // Colisão com o Diabo
+            if (checkCollision(player, devil)) {
+                if (temAbacaxi) {
+                    vencerJogo();
+                } else {
+                    // Se encostar sem o abacaxi, é empurrado para trás
+                    player.x -= 20; 
+                }
+            }
+        }
+
+        // Verifica se dois retângulos se sobrepõem
+        function checkCollision(rect1, rect2) {
+            return rect1.x < rect2.x + rect2.w &&
+                   rect1.x + rect1.width > rect2.x &&
+                   rect1.y < rect2.y + rect2.h &&
+                   rect1.y + rect1.height > rect2.y;
+        }
+
+        function perderVida() {
+            vidas--;
+            document.getElementById("vidas").innerText = vidas;
+            if (vidas <= 0) {
+                gameState = "GAMEOVER";
+                document.getElementById("mensagem").innerText = "Você foi consumido pelo fogo!";
+                document.getElementById("mensagem").style.color = "red";
+                document.getElementById("btn-reiniciar").style.display = "block";
+            } else {
+                // Reseta a posição do jogador
+                player.x = 50;
+                player.y = 300;
+                player.dy = 0;
+            }
+        }
+
+        function vencerJogo() {
+            gameState = "WIN";
+            // Deixa a tela escura
+            canvas.classList.add("tela-escura");
+            
+            // Esconde UI normal
+            document.getElementById("status").style.display = "none";
+            
+            // Mostra mensagem final
+            const msg = document.getElementById("mensagem");
+            msg.innerText = "continua...";
+            msg.style.color = "white";
+            msg.style.fontFamily = "Times New Roman, serif";
+            msg.style.fontSize = "50px";
+            msg.style.marginTop = "180px";
+        }
+
+        function reiniciarJogo() {
+            vidas = 3;
+            temAbacaxi = false;
+            abacaxi.coletado = false;
+            player.x = 50;
+            player.y = 300;
+            player.dy = 0;
+            gameState = "PLAYING";
+            
+            document.getElementById("vidas").innerText = vidas;
+            document.getElementById("objetivo").innerText = "Pegue o Abacaxi!";
+            document.getElementById("mensagem").innerText = "";
+            document.getElementById("btn-reiniciar").style.display = "none";
+            document.getElementById("status").style.display = "block";
+            canvas.classList.remove("tela-escura");
+        }
+
+        // Loop de Renderização Principal
+        function draw() {
+            if (gameState === "WIN") {
+                // Se ganhou, a tela fica preta manipulada pelo CSS
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                return;
+            }
+
+            // Limpa a tela frame a frame
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Desenha as Plataformas
+            ctx.fillStyle = "#4a0000"; // Vermelho bem escuro
+            for (let plat of platforms) {
+                ctx.fillRect(plat.x, plat.y, plat.w, plat.h);
+            }
+
+            // Desenha a Lava
+            ctx.fillStyle = "#ff4500"; // Laranja fogo
+            for (let l of lava) {
+                ctx.fillRect(l.x, l.y, l.w, l.h);
+            }
+
+            drawDevil();
+            drawPineapple();
+            
+            // Desenha o jogador apenas se não deu game over
+            if (gameState !== "GAMEOVER") {
+                drawPlayer();
+            }
+        }
+
+        function loop() {
+            update();
+            draw();
+            requestAnimationFrame(loop);
+        }
+
+        // Inicia o jogo
+        gameState = "PLAYING";
+        loop();
+    </script>
+</body>
+</html>
